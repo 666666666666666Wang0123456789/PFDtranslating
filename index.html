@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>文件翻译工具</title>
+    <link rel="stylesheet" href="./resources/style.css">
+    <script src="qrc:///qtwebchannel/qwebchannel.js"></script>
+</head>
+<body>
+    <button id="btnExit" onclick="Exit()">
+        <h1 id="wordExit">X</h1>
+    </button>
+    <!-- 主界面 -->
+    <div id="mainPage" class="page active">
+        <h1 class="neon">[TRANSLATOR]</h1>
+        <button id="btnChoose" class="box" onclick="handleChooseFile()">
+            <h1 id="ChooseFileText">Choose File</h1>
+        </button>
+    </div>
+
+    <!-- 准备翻译界面 -->
+    <div id="preTranslatePage" class="page">
+        <div id="showPath" onclick="handleChooseFile()">
+            <p id="filePath">5678</p>
+        </div>
+        <div class="loader">
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <button id="btnStart" class="box" onclick="handleStartTranslate()">
+            <h1 id="ChooseFileText">Start Translate</h1>
+        </button>
+    </div>
+
+    <!-- 完成界面 -->
+    <div id="completePage" class="page">
+        <h1 id="complete-text">Finished</h1>
+        <button id="btnBack" class="box" onclick="handleBack()">
+            <h1 id="ChooseFileText">Return Home</h1>
+        </button>
+    </div>
+
+    <script>
+        // 初始化通信桥梁
+        let bridge;
+        document.addEventListener("DOMContentLoaded", () => {
+            new QWebChannel(qt.webChannelTransport, (channel) => {
+                bridge = channel.objects.bridge;
+            });
+        });
+
+        // 页面切换函数
+        function switchPage(targetId) {
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            document.getElementById(targetId).classList.add('active');
+        }
+
+        // 按钮事件处理
+        function handleChooseFile() {
+            bridge.chooseFile(); // 调用Python方法
+        }
+
+        function handleStartTranslate() {
+            document.getElementsByClassName("loader")[0].classList.add('active')
+            bridge.startTranslate(); // 调用Python翻译逻辑
+        }
+
+        function handleBack() {
+            switchPage('mainPage');
+        }
+
+        // 供Python调用的更新界面方法
+        function updateFilePath(path) {
+            document.getElementById('filePath').textContent = `${path}`;
+            switchPage('preTranslatePage');
+        }
+
+        function showComplete() {
+            document.getElementsByClassName("loader")[0].classList.remove('active')
+            switchPage('completePage');
+        }
+
+        function Exit() {
+            bridge.Exit();
+        }
+    </script>
+</body>
+</html>
