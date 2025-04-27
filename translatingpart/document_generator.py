@@ -8,7 +8,7 @@ def generate_result_pdf(text, image_paths, image_positions, tables, table_positi
     c = canvas.Canvas(output_pdf, pagesize=A4)
     width, height = A4
 
-    pdfmetrics.registerFont(TTFont('SimSun', "./resources/SIMSUN.TTC"))
+    pdfmetrics.registerFont(TTFont('SimSun', "SIMSUN.TTC"))
     c.setFont('SimSun', 12)
 
     if isinstance(text, list):
