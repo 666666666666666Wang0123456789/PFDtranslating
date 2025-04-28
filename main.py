@@ -16,15 +16,15 @@ class Bridge(QObject):
     def chooseFile(self):
         # 弹出文件选择对话框
         file_dialog = QFileDialog()
-        file_path, _ = file_dialog.getOpenFileName(
+        self.file_path, _ = file_dialog.getOpenFileName(
             None, 
             "选择文件", 
             "", 
             "All Files (*)"
         )
-        if file_path:
+        if self.file_path:
             # 调用JS更新界面
-            self.webview.page().runJavaScript(f"updateFilePath('{file_path}')")
+            self.webview.page().runJavaScript(f"updateFilePath('{self.file_path}')")
 
     @pyqtSlot()
     def startTranslate(self):
