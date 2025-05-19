@@ -4,7 +4,7 @@ from PyQt6.QtCore import QObject, pyqtSlot, QUrl, QTimer, Qt
 from PyQt6.QtWidgets import QApplication, QFileDialog
 from PyQt6.QtWebEngineWidgets import QWebEngineView
 from PyQt6.QtWebChannel import QWebChannel
-from translatingpart import translator
+from PDF_TO_MD import pdf_to_md
 
 class Bridge(QObject):
     def __init__(self, webview):
@@ -30,12 +30,7 @@ class Bridge(QObject):
     def startTranslate(self):
         # 模拟翻译过程（实际开发中替换为真实逻辑）
         print("开始翻译...")
-        translator.main(self.file_path)
-        
-        # 延迟2秒模拟处理
-        QTimer.singleShot(2000, lambda: 
-            self.webview.page().runJavaScript("showComplete()")
-        )
+        pdf_to_md(self.file_path)
 
     @pyqtSlot()
     def Exit(self):
