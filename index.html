@@ -69,8 +69,9 @@
         }
 
         function handleStartTranslate() {
-            document.getElementsByClassName("loader")[0].classList.add('active')
-            bridge.startTranslate(); // 调用Python翻译逻辑
+            document.getElementsByClassName("loader")[0].classList.add('active');
+            document.getElementById('btnStart').classList.add('hidden');
+            bridge.startTranslate();
         }
 
         function handleBack() {

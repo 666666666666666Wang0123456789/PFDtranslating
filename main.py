@@ -1,10 +1,26 @@
 import sys
 import os
-from PyQt6.QtCore import QObject, pyqtSlot, QUrl, QTimer, Qt
+from PyQt6.QtCore import QObject, pyqtSlot, QUrl, QTimer, Qt, QThread, pyqtSignal
 from PyQt6.QtWidgets import QApplication, QFileDialog
 from PyQt6.QtWebEngineWidgets import QWebEngineView
 from PyQt6.QtWebChannel import QWebChannel
 from PDF_TO_MD import pdf_to_md
+from translatemd import process_markdown_file
+
+class TranslateWorker(QObject):
+    finished = pyqtSignal()
+
+    def __init__(self, file_path):
+        super().__init__()
+        self.file_path = file_path
+    
+    def run(self):
+        try:
+            md_path = pdf_to_md(self.file_path)
+            process_markdown_file(md_path)
+        except Exception as e:
+            print(str(e))
+        self.finished.emit()
 
 class Bridge(QObject):
     def __init__(self, webview):
@@ -28,9 +44,20 @@ class Bridge(QObject):
 
     @pyqtSlot()
     def startTranslate(self):
-        # 模拟翻译过程（实际开发中替换为真实逻辑）
-        print("开始翻译...")
-        pdf_to_md(self.file_path)
+        print('&&')
+        self.thread = QThread()
+        self.worker = TranslateWorker(self.file_path)
+        self.worker.moveToThread(self.thread)
+
+        self.worker.finished.connect(self.thread.quit)
+        self.worker.finished.connect(self.thread.deleteLater)
+        self.thread.started.connect(self.worker.run)
+        self.thread.finished.connect(self.translateFinished)
+
+        self.thread.start()
+
+    def translateFinished(self):
+        self.webview.page().runJavaScript("showComplete()")
 
     @pyqtSlot()
     def Exit(self):

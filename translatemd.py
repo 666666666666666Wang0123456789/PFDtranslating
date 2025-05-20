@@ -14,8 +14,11 @@ class TranslationService:
             print(f"翻译失败: {str(e)}")
             return text  # 返回原文本以避免错误
 
-def process_markdown_file(input_file, output_file):
+def process_markdown_file(input_file):
     """处理Markdown文件并生成翻译后的版本"""
+    output_file = input_file.split('.')[0] + '(translated).md'
+    print(input_file)
+    print(output_file)
     translate = TranslationService()
     with open(input_file, 'r', encoding='utf-8') as f:
         md_content = f.read()
@@ -27,6 +30,7 @@ def process_markdown_file(input_file, output_file):
     table_lines = []
 
     for line in md_content.split('\n'):
+        print('%')
         # 处理代码块
         if line.strip().startswith('```'):
             in_code_block = not in_code_block
@@ -82,7 +86,9 @@ def process_markdown_file(input_file, output_file):
                 if part and (part.startswith('`') or part.startswith('$')):
                     translated_parts.append(part)
                 elif part:
-                    translated_parts.append(translate.run(part))
+                    for sentence in part.split('.'):
+                        translated_parts.append(translate.run(sentence))
+                        # translated_parts.append(sentence)
             translated_line = ''.join(translated_parts)
             translated_content.append(translated_line)
         else:
@@ -91,13 +97,8 @@ def process_markdown_file(input_file, output_file):
     # 处理最后剩余的表格行
     if table_lines:
         translated_content.extend(table_lines)
-
+    print('translate_finished')
     # 写入输出文件
     with open(output_file, 'w', encoding='utf-8') as f:
         f.write('\n'.join(translated_content))
-
-if __name__ == "__main__":
-    input_md = "E:/test0512.md"
-    output_md = "E:/output_zh.md"
-    process_markdown_file(input_md, output_md)
-    print(f"翻译完成，结果已保存到 {output_md}")
+    print('output_finished')
